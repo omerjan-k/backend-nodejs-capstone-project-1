@@ -1,14 +1,14 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+const express = require('express');
+const multer = require('multer');
+// const path = require('path');
+// const fs = require('fs');
 const router = express.Router();
-const connectToDatabase = require("../models/db");
-const logger = require("../logger");
-const { log } = require("console");
+const connectToDatabase = require('../models/db');
+const logger = require('../logger');
+const { log } = require('console');
 
 // Define the upload directory path
-const directoryPath = "public/images";
+const directoryPath = 'public/images';
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
@@ -23,24 +23,24 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Get all secondChanceItems
-router.get("/", async (req, res, next) => {
-  logger.info("/ called");
+router.get('/', async (req, res, next) => {
+  logger.info('/ called');
   try {
     const db = await connectToDatabase();
-    const collection = db.collection("secondChanceItems");
+    const collection = db.collection('secondChanceItems');
     const secondChanceItems = await collection.find({}).toArray();
     res.json(secondChanceItems);
   } catch (e) {
-    logger.console.error("oops something went wrong", e);
+    logger.console.error('oops something went wrong', e);
     next(e);
   }
 });
 
 // Add a new item
-router.post("/", upload.single("file"), async (req, res, next) => {
+router.post('/', upload.single('file'), async (req, res, next) => {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection("secondChanceItems");
+    const collection = db.collection('secondChanceItems');
     let secondChanceItem = req.body;
 
     // Find the highest existing id and increment it
@@ -62,13 +62,13 @@ router.post("/", upload.single("file"), async (req, res, next) => {
 });
 
 // Get a single secondChanceItem by ID
-router.get("/:id", async (req, res, next) => {
+router.get('/:id', async (req, res, next) => {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection("secondChanceItems");
+    const collection = db.collection('secondChanceItems');
     const secondChanceItem = await collection.findOne({ id: req.params.id });
     if (!secondChanceItem) {
-      return res.status(404).send("secondChanceItem not found");
+      return res.status(404).send('secondChanceItem not found');
     }
     res.json(secondChanceItem);
   } catch (e) {
@@ -77,14 +77,14 @@ router.get("/:id", async (req, res, next) => {
 });
 
 // Update and existing item
-router.put("/:id", async (req, res, next) => {
+router.put('/:id', async (req, res, next) => {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection("secondChanceItems");
+    const collection = db.collection('secondChanceItems');
     const secondChanceItem = await collection.findOne({ id: req.params.id });
     if (!secondChanceItem) {
-      logger.error("secondChanceItem not found");
-      return res.status(404).send("secondChanceItem not found");
+      logger.error('secondChanceItem not found');
+      return res.status(404).send('secondChanceItem not found');
     }
     secondChanceItem.category = req.body.category;
     secondChanceItem.condition = req.body.condition;
@@ -98,12 +98,12 @@ router.put("/:id", async (req, res, next) => {
     const updatepreloveItem = await collection.findOneAndUpdate(
       { id: req.params.id },
       { $set: secondChanceItem },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     );
     if (updatepreloveItem) {
-      res.json({ updated: "success" });
+      res.json({ updated: 'success' });
     } else {
-      res.status(500).send("Update failed");
+      res.status(500).send('Update failed');
     }
   } catch (e) {
     next(e);
@@ -111,17 +111,17 @@ router.put("/:id", async (req, res, next) => {
 });
 
 // Delete an existing item
-router.delete("/:id", async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
   try {
     const db = await connectToDatabase();
-    const collection = db.collection("secondChanceItems");
+    const collection = db.collection('secondChanceItems');
     const secondChanceItem = await collection.findOne({ id: req.params.id });
     if (!secondChanceItem) {
       log;
-      return res.status(404).send("secondChanceItem not found");
+      return res.status(404).send('secondChanceItem not found');
     }
     await collection.deleteOne({ id: req.params.id });
-    res.json({ deleted: "success" });
+    res.json({ deleted: 'success' });
   } catch (e) {
     next(e);
   }
